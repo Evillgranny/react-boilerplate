@@ -2,7 +2,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const merge = require('webpack-merge')
 const TARGET = process.env.npm_lifecycle_event
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+
 
 const baseConfig = {
   entry: './src/index.js',
@@ -18,10 +18,13 @@ const baseConfig = {
         exclude: /node_modules/,
       },
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-        exclude: /node_modules/,
-      },
+        test: /\.s[ac]ss$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader',
+        ],
+      }
     ],
   },
   plugins: [
@@ -43,11 +46,6 @@ if (TARGET === 'dev') {
 if (TARGET === 'build') {
   module.exports = merge(baseConfig, {
     plugins: [
-      new BundleAnalyzerPlugin({
-        analyzerMode: 'static',
-        openAnalyzer: false,
-        reportFilename: 'bundle_sizes.html',
-      }),
     ],
     externals: {
       react: 'React',

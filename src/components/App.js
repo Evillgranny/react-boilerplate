@@ -6,6 +6,7 @@ class App extends React.Component {
     return (
       <div>
         <h1>Hello world</h1>
+        <img src="assets/img/hello.png" alt="hello"></img>
       </div>
     )
   }

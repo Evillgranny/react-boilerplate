@@ -1,8 +1,8 @@
 const path = require('path')
+const CopyPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const merge = require('webpack-merge')
-const TARGET = process.env.npm_lifecycle_event
-
 
 const baseConfig = {
   entry: './src/index.js',
@@ -19,12 +19,8 @@ const baseConfig = {
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader',
-        ],
-      }
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
     ],
   },
   plugins: [
@@ -34,22 +30,35 @@ const baseConfig = {
   ],
 }
 
-if (TARGET === 'dev') {
-  module.exports = merge(baseConfig, {
-    devServer: {
-      port: 9000,
-    },
-    devtool: 'source-map',
-  })
-}
+module.exports = (env, argv) => {
+  if (argv.mode === 'development')
+    return merge(baseConfig, {
+      devServer: {
+        port: 9000,
+        contentBase: path.join(__dirname, '/assets'),
+        contentBasePublicPath: '/assets',
+      },
+      devtool: 'source-map',
+    })
 
-if (TARGET === 'build') {
-  module.exports = merge(baseConfig, {
-    plugins: [
-    ],
-    externals: {
-      react: 'React',
-      'react-dom': 'ReactDOM',
-    },
-  })
+  if (argv.mode === 'production')
+    return merge(baseConfig, {
+      plugins: [
+        new CleanWebpackPlugin(),
+        new CopyPlugin({
+          patterns: [
+            {
+              from: path.join(__dirname, '/assets'),
+              to: path.join(__dirname, 'dist/assets'),
+            },
+          ],
+        }),
+      ],
+      externals: {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+      },
+    })
+
+  return baseConfig
 }
